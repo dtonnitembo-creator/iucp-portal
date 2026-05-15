@@ -1,3 +1,8 @@
+require('dotenv').config();
+
+const crypto = require('crypto');
+global.crypto = crypto;
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -6,12 +11,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 🔗 MongoDB Connection
-mongoose.connect('mongodb://127.0.0.1:27017/iucp')
+//  MongoDB Connection
+mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log("MongoDB Connected"))
 .catch(err => console.log(err));
 
-// 🧩 Schemas
+//  Schemas
 const UserSchema = new mongoose.Schema({
     name: String,
     university: String,
@@ -27,7 +32,7 @@ const ProjectSchema = new mongoose.Schema({
 const User = mongoose.model('User', UserSchema);
 const Project = mongoose.model('Project', ProjectSchema);
 
-// 🔹 ROUTES
+//  ROUTES
 
 // Register User
 app.post('/register', async (req, res) => {
@@ -82,7 +87,7 @@ app.get('/seed', async (req, res) => {
     res.json({ users, projects });
 });
 
-// 🚀 Start Server
+//  Start Server
 const PORT = 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
