@@ -11,6 +11,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
+const User = require('./models/User');
+
 //  MongoDB Connection
 mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log("MongoDB Connected"))
@@ -87,6 +92,63 @@ app.get('/seed', async (req, res) => {
     res.json({ users, projects });
 });
 
+//Register
+app.post('/register', async (req, res) => {
+    try {
+        const { name, email, password, university } = req.body;
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const user = new User({
+            name,
+            email,
+            password: hashedPassword,
+            university
+        });
+
+        await user.save();
+
+        res.json({ message: "User registered successfully" });
+
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+//Login
+app.post('/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(400).json({ message: "User not found" });
+        }
+
+        const validPassword = await bcrypt.compare(password, user.password);
+
+        if (!validPassword) {
+            return res.status(400).json({ message: "Invalid password" });
+        }
+
+        const token = jwt.sign(
+            { id: user._id },
+            "secretkey",
+            { expiresIn: '1h' }
+        );
+
+        res.json({
+            token,
+            user: {
+                name: user.name,
+                university: user.university
+            }
+        });
+
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 //  Start Server
 const PORT = 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
