@@ -22,11 +22,6 @@ mongoose.connect(process.env.MONGO_URI)
 .catch(err => console.log(err));
 
 //  Schemas
-const UserSchema = new mongoose.Schema({
-    name: String,
-    university: String,
-    email: String
-});
 
 const ProjectSchema = new mongoose.Schema({
     title: String,
@@ -34,7 +29,6 @@ const ProjectSchema = new mongoose.Schema({
     members: [String]
 });
 
-const User = mongoose.model('User', UserSchema);
 const Project = mongoose.model('Project', ProjectSchema);
 
 //  ROUTES
