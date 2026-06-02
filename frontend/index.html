@@ -28,13 +28,14 @@
     <h1>IUCP Login</h1>
 
     <div class="card">
-        <input id="username" placeholder="Enter your name" style="width:100%; padding:8px;"><br><br>
+       <input id="email"
+       placeholder="Email"
+       style="width:100%; padding:8px;"><br><br>
 
-        <select id="userUniversity" style="width:100%; padding:8px;">
-            <option>University of Zimbabwe</option>
-            <option>NUST</option>
-            <option>Midlands State University</option>
-        </select><br><br>
+<input id="password"
+       type="password"
+       placeholder="Password"
+       style="width:100%; padding:8px;"><br><br>
 
         <button onclick="login()" style="padding:10px; background:#38bdf8; border:none; border-radius:5px;">
             Enter Portal
@@ -164,24 +165,66 @@ async function deleteProject(id) {
     });
 
 }
-function login() {
-    const name = document.getElementById('username').value;
-    const uni = document.getElementById('userUniversity').value;
 
-    if (!name) {
-        alert("Enter your name");
-        return;
+async function login() {
+
+    const email =
+        document.getElementById('email').value;
+
+    const password =
+        document.getElementById('password').value;
+
+    try {
+
+        const response = await fetch(
+            'http://localhost:3000/login',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email,
+                    password
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            alert(data.message);
+            return;
+        }
+
+        localStorage.setItem(
+            'token',
+            data.token
+        );
+
+        document.getElementById('loginScreen')
+            .style.display = "none";
+
+        document.getElementById('dashboard')
+            .style.display = "block";
+
+        document.getElementById('welcomeMsg')
+            .innerText =
+            "Welcome " +
+            data.user.name +
+            " (" +
+            data.user.university +
+            ")";
+
+        loadData();
+
+    } catch (err) {
+
+        console.error(err);
+
+        alert("Login failed");
+
     }
-
-    // Hide login, show dashboard
-    document.getElementById('loginScreen').style.display = "none";
-    document.getElementById('dashboard').style.display = "block";
-
-    // Show welcome message
-    document.getElementById('welcomeMsg').innerText =
-        "Welcome " + name + " (" + uni + ")";
-
-    loadData();
 }
 </script>
 

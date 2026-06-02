@@ -33,13 +33,6 @@ const Project = mongoose.model('Project', ProjectSchema);
 
 //  ROUTES
 
-// Register User
-app.post('/register', async (req, res) => {
-    const user = new User(req.body);
-    await user.save();
-    res.json(user);
-});
-
 // Get Users
 app.get('/users', async (req, res) => {
     const users = await User.find();
@@ -127,7 +120,7 @@ app.post('/login', async (req, res) => {
 
         const token = jwt.sign(
             { id: user._id },
-            "secretkey",
+            process.env.JWT_SECRET,
             { expiresIn: '1h' }
         );
 
